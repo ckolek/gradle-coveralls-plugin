@@ -1,0 +1,20 @@
+language: java
+env:
+  global:
+    - secure: "XusHDSw3Z2f/q1Z8vEJNhqSx6YEhAx9+TvK9l0SM8Bk3Dsbp8WCmFB0qHPxApOGqOF4vJAs6jyG3CYbls5Ew29+GIi6g7+cBN8rZQ9NwrX6b7ROMhgVowfNyDG2K/JG4/p727P4mjWM81gwPUdLMa4SKfWEKz+C5Fde2G+3E7TiDu63GUoxyaS7HhSC0Oqpl/zdGmQScGu1gUUoDsSHAHrZPUBCLGe/bJSULi9lxgOJKf6qAUGVo1+cRmfyHrgShoR10HUCfto7M+QDgstrXVgB34RfdXc/AgqE1J4VKCL59si3RkEYUpmSGjNKQipxqBHRY2tvx0BEgDbHCbzuSnot8W586No8PQf7R00iH5LTRBbX0tMaY7HielR2DuTGKQT5NEqXhnQsn1giSBxly5/UPYnEpZryQof8W6e2tD00/ryn7C+tCp04klXbn8/CVZQzFjx9oDq/gIfxTJaCVpqb8nQNM5Qs0Wa9Azkwr3B9q/s+jwPD/o1i4Hz49xL1agAE/reV05/1acW3emtKSNRWOqNLcvKJoOWxwTEuj//lz/ZUHiP8GiVApZhdl6YpuSfSp8GKJvlz1jxTnHSiEJlK07ff2ANPvKMkKJO031h+RoHcOt04CE2/Lh1Jw5/TftKelr4w053jIbjI7nUMVGPrRNNFR6irYFT1zq3R5Tb0="
+    - # ^^ GPG_KEY_ID
+    - secure: "Pg3INtTje9XV2+WqR8N7+DAwjRWMxkjr4mqWStrY8GE4KjWHp9NDFBXrsACEL/DHUSPevcVTz3CH7PNY6co/aiQGhygUx5kwAE4sCLLZ4uroW4EC1o/rlKZQ5TRKfYcsVKih7vL2VLawBGAl/R5R9NPFmTP6rhQVZqKF/1n18JsfHqY719SRcj5QuxaM2iCZdZZSK8F3SaYtl+j/m2dppl7WV0MpWza+Lbk651iFhp/a12VDsbymsHPG2VmcZ9Gome/bVhbx19uDoc8G5QAADmI9FbsQ0w2+RN/SNn+RIH5bPyf9h7lEWpD4ACgDZrkspU816qf5y+r3XxNqLr0I3e6HveSMSB++P90x15zLHkfyBXhiiKrnnk0INV+dzswgreaIsj76DEdRVg1iXXgthIsIOFPh93wj7nU0/WclwvO9LIXaXHB9Omgl+Oguzh40EHo7UKRFi1F6NJO6m0g9FbhtK8GzBKg6HD7/ytEU/m61p8UEHejMAQo9apXyzAgxSp8LNiwftxVux3IJlhUgvg1dym33MdVXSZVvo55w8WUZBdDQAWnWeCO87UEbv2FI+59O8vlPaYS5yz1U8MsmECtgV25CRb9uNZPNneHtPPC6P3ERGJrB5I16LzDv6SFdtm0pmiuTVdW5NoSpCIxqJoFSscai5HBMQKfmKlWktGo="
+    - # ^^ GPG_PASSPHRASE
+before_install:
+ - ./cd/before-install.sh
+script:
+ - ./gradlew check
+before_cache:
+ - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+ - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+ directories:
+   - $HOME/.gradle/caches/
+   - $HOME/.gradle/wrapper/
+after_success:
+ - ./gradlew uploadArchives
