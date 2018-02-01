@@ -1,0 +1,92 @@
+group 'me.kolek.gradle'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+group 'me.kolek.gradle'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url mavenRepoSnapshot
+    }
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.2'
+    runtime group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.2'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
+    compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.3'
+    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '4.9.0.201710071750-r'
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+ext."signing.keyId" = System.env.GPG_KEY_ID
+ext."signing.password" = System.env.GPG_PASSPHRASE
+ext."signing.secretKeyRingFile" = "$rootProject.projectDir/cd/codesigning.gpg"
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: mavenRepoStaging) {
+                authentication(userName: "$System.env.OSSRH_JIRA_USERNAME", password: "$System.env.OSSRH_JIRA_PASSWORD")
+            }
+
+            snapshotRepository(url: mavenRepoSnapshot) {
+                authentication(userName: "$System.env.OSSRH_JIRA_USERNAME", password: "$System.env.OSSRH_JIRA_PASSWORD")
+            }
+
+            pom.project {
+                name name
+                description description
+                url 'https://github.com/ckolek/gradle-coveralls-plugin'
+                scm {
+                    url 'https://github.com/ckolek/gradle-coveralls-plugin'
+                    connection 'git@github.com:ckolek/gradle-coveralls-plugin.git'
+                    developerConnection 'git@github.com:ckolek/gradle-coveralls-plugin.git'
+                }
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/license/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'ckolek'
+                        name 'Chris Kolek'
+                        email 'christopher.w@kolek.me'
+                    }
+                }
+            }
+        }
+    }
+}
