@@ -27,4 +27,5 @@ deploy:
   skip_cleanup: true
   on:
     repo: ckolek/gradle-coveralls-plugin
+    branch: stable
     tags: true
