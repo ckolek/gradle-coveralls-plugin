@@ -1,21 +1,14 @@
 group 'me.kolek.gradle'
-version '1.0-SNAPSHOT'
+version '1.0.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-group 'me.kolek.gradle'
-version '1.0-SNAPSHOT'
-
 sourceCompatibility = '1.8'
 
 repositories {
     mavenCentral()
-    mavenLocal()
-    maven {
-        url mavenRepoSnapshot
-    }
 }
 
 dependencies {
@@ -74,8 +67,8 @@ uploadArchives {
                 }
                 licenses {
                     license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/license/LICENSE-2.0.txt'
+                        name 'MIT License'
+                        url 'https://opensource.org/licenses/MIT'
                         distribution 'repo'
                     }
                 }
