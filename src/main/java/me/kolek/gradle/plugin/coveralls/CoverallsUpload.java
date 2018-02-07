@@ -145,9 +145,8 @@ public class CoverallsUpload extends DefaultTask {
                 for (int i = 1; i <= line.getCoveredBranches() + line.getMissedBranches(); i++) {
                     branches.add(new Integer[]{line.getNumber(), 1, i, i <= line.getCoveredBranches() ? 1 : 0});
                 }
-            } else {
-                coverage[line.getNumber() - 1] = line.getCoveredInstructions();
             }
+            coverage[line.getNumber() - 1] = line.getCoveredInstructions();
         }
 
         Path relativePath = getProject().getRootDir().toPath().relativize(file.toPath());
