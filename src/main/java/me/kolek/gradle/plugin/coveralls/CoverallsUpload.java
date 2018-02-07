@@ -100,6 +100,9 @@ public class CoverallsUpload extends DefaultTask {
             _git.setBranch(repo.getBranch());
 
             ObjectId headId = repo.resolve(Constants.HEAD);
+            if (headId == null) {
+                return null;
+            }
             RevCommit headCommit = new RevWalk(repo).parseCommit(headId);
 
             Git.Head head = new Git.Head();
