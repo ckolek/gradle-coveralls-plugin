@@ -142,7 +142,9 @@ public class CoverallsUpload extends DefaultTask {
 
         for (CodeCoverage.SourceFile.Line line : sourceFile.getLines()) {
             if (line.getCoveredBranches() + line.getMissedBranches() > 0) {
-                branches.add(new Integer[]{line.getNumber(), 0, branches.size(), line.getCoveredBranches()});
+                for (int i = 1; i <= line.getCoveredBranches() + line.getMissedBranches(); i++) {
+                    branches.add(new Integer[]{line.getNumber(), 1, i, i <= line.getCoveredBranches() ? 1 : 0});
+                }
             } else {
                 coverage[line.getNumber() - 1] = line.getCoveredInstructions();
             }
