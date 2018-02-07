@@ -4,6 +4,7 @@ import groovy.lang.Closure;
 import me.kolek.gradle.plugin.coveralls.service.CIService;
 import me.kolek.gradle.plugin.coveralls.service.CodeshipService;
 import me.kolek.gradle.plugin.coveralls.service.DefaultService;
+import me.kolek.gradle.plugin.coveralls.service.TravisService;
 import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
@@ -13,6 +14,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class CIServiceContainer {
     private final ObjectFactory objectFactory;
@@ -59,6 +61,14 @@ public class CIServiceContainer {
 
     public CodeshipService codeship(Action<? super CodeshipService> action) {
         return service(CodeshipService.class, action);
+    }
+
+    public TravisService travis(Map<String, ?> options) {
+        return service(TravisService.class);
+    }
+
+    public TravisService travis(Map<String, ?> options, Action<? super TravisService> action) {
+        return service(TravisService.class, action);
     }
 
     public DefaultService custom() {
