@@ -49,22 +49,12 @@ public class CoverallsPluginExtension {
         return serviceContainer.getServices();
     }
 
-    public void services(Closure configureClosure) {
-        ConfigureUtil.configure(configureClosure, serviceContainer);
-    }
-
     public void services(Action<? super CIServiceContainer> action) {
         action.execute(serviceContainer);
     }
 
     public <C extends CodeCoverageProvider> C coverage(Class<C> coverageProviderType) {
         return createCoverageProvider(coverageProviderType);
-    }
-
-    public <C extends CodeCoverageProvider> C coverage(Class<C> coverageProviderType, Closure configureClosure) {
-        C coverageProvider = createCoverageProvider(coverageProviderType);
-        ConfigureUtil.configure(configureClosure, coverageProvider);
-        return coverageProvider;
     }
 
     public <C extends CodeCoverageProvider> C coverage(Class<C> coverageProviderType, Action<? super C> action) {
@@ -75,10 +65,6 @@ public class CoverallsPluginExtension {
 
     public JacocoCoverageProvider jacoco() {
         return coverage(JacocoCoverageProvider.class);
-    }
-
-    public JacocoCoverageProvider jacoco(Closure configureClosure) {
-        return coverage(JacocoCoverageProvider.class, configureClosure);
     }
 
     public JacocoCoverageProvider jacoco(Action<? super JacocoCoverageProvider> action) {
