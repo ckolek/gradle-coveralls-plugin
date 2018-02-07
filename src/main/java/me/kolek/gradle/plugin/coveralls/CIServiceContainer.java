@@ -63,11 +63,11 @@ public class CIServiceContainer {
         return service(CodeshipService.class, action);
     }
 
-    public TravisService travis(Map<String, ?> options) {
+    public TravisService travis() {
         return service(TravisService.class);
     }
 
-    public TravisService travis(Map<String, ?> options, Action<? super TravisService> action) {
+    public TravisService travis(Action<? super TravisService> action) {
         return service(TravisService.class, action);
     }
 
