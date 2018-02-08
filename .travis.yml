@@ -29,3 +29,4 @@ deploy:
     repo: ckolek/gradle-coveralls-plugin
     branch: stable
     tags: true
+  draft: true
