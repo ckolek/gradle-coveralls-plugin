@@ -65,7 +65,7 @@ public class CoverallsUpload extends DefaultTask {
         Job job = createJob(repoToken, service.get(), coverage.get());
 
         CoverallsApi api = new CoverallsApi();
-        api.setTempDir(getProject().getBuildDir().toPath().resolve("temp"));
+        api.setTempDir(getTemporaryDir().toPath());
 
         CoverallsResponse response = api.createJob(job);
         if (response.isError()) {
