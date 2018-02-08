@@ -2,22 +2,22 @@ package me.kolek.gradle.plugin.coveralls.service;
 
 public class TravisService implements CIService {
     private static final String TRAVIS = "TRAVIS";
-    private static final String TRAVIS_BRANCH = "TRAVIS";
-    private static final String TRAVIS_BUILD_DIR = "TRAVIS";
-    private static final String TRAVIS_BUILD_ID = "TRAVIS";
-    private static final String TRAVIS_BUILD_NUMBER = "TRAVIS";
-    private static final String TRAVIS_COMMIT = "TRAVIS";
-    private static final String TRAVIS_COMMIT_MESSAGE = "TRAVIS";
-    private static final String TRAVIS_COMMIT_RANGE = "TRAVIS";
-    private static final String TRAVIS_EVENT_TYPE = "TRAVIS";
-    private static final String TRAVIS_JOB_ID = "TRAVIS";
-    private static final String TRAVIS_JOB_NUMBER = "TRAVIS";
-    private static final String TRAVIS_PULL_REQUEST = "TRAVIS";
-    private static final String TRAVIS_PULL_REQUEST_BRANCH = "TRAVIS";
-    private static final String TRAVIS_PULL_REQUEST_SHA = "TRAVIS";
-    private static final String TRAVIS_PULL_REQUEST_SLUG = "TRAVIS";
-    private static final String TRAVIS_REPO_SLUG = "TRAVIS";
-    private static final String TRAVIS_TAG = "TRAVIS";
+    private static final String TRAVIS_BRANCH = "TRAVIS_BRANCH";
+    private static final String TRAVIS_BUILD_DIR = "TRAVIS_BUILD_DIR";
+    private static final String TRAVIS_BUILD_ID = "TRAVIS_BUILD_ID";
+    private static final String TRAVIS_BUILD_NUMBER = "TRAVIS_BUILD_NUMBER";
+    private static final String TRAVIS_COMMIT = "TRAVIS_COMMIT";
+    private static final String TRAVIS_COMMIT_MESSAGE = "TRAVIS_COMMIT_MESSAGE";
+    private static final String TRAVIS_COMMIT_RANGE = "TRAVIS_COMMIT_RANGE";
+    private static final String TRAVIS_EVENT_TYPE = "TRAVIS_EVENT_TYPE";
+    private static final String TRAVIS_JOB_ID = "TRAVIS_JOB_ID";
+    private static final String TRAVIS_JOB_NUMBER = "TRAVIS_JOB_NUMBER";
+    private static final String TRAVIS_PULL_REQUEST = "TRAVIS_PULL_REQUEST";
+    private static final String TRAVIS_PULL_REQUEST_BRANCH = "TRAVIS_PULL_REQUEST_BRANCH";
+    private static final String TRAVIS_PULL_REQUEST_SHA = "TRAVIS_PULL_REQUEST_SHA";
+    private static final String TRAVIS_PULL_REQUEST_SLUG = "TRAVIS_PULL_REQUEST_SLUG";
+    private static final String TRAVIS_REPO_SLUG = "TRAVIS_REPO_SLUG";
+    private static final String TRAVIS_TAG = "TRAVIS_TAG";
 
     private boolean isPro;
 
