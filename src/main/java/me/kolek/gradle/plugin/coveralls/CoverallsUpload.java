@@ -67,15 +67,15 @@ public class CoverallsUpload extends DefaultTask {
 
         Job job = createJob(repoToken, service.get(), coverage.get());
 
+        CoverallsApi api = new CoverallsApi();
+        api.setTempDir(getTemporaryDir().toPath());
+
         Logger logger = getLogger();
         if (logger.isDebugEnabled()) {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = api.getObjectMapper().copy();
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
             logger.debug("Coveralls Job: " + mapper.writeValueAsString(job));
         }
-
-        CoverallsApi api = new CoverallsApi();
-        api.setTempDir(getTemporaryDir().toPath());
 
         CoverallsResponse response = api.createJob(job);
         if (response.isError()) {
