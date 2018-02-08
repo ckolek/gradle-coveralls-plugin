@@ -1,5 +1,7 @@
 package me.kolek.gradle.plugin.coveralls;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import groovy.lang.Tuple2;
 import me.kolek.gradle.plugin.coveralls.api.*;
 import me.kolek.gradle.plugin.coveralls.coverage.CodeCoverage;
@@ -14,6 +16,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
@@ -65,7 +68,14 @@ public class CoverallsUpload extends DefaultTask {
         Job job = createJob(repoToken, service.get(), coverage.get());
 
         CoverallsApi api = new CoverallsApi();
-        api.setTempDir(getProject().getBuildDir().toPath().resolve("temp"));
+        api.setTempDir(getTemporaryDir().toPath());
+
+        Logger logger = getLogger();
+        if (logger.isDebugEnabled()) {
+            ObjectMapper mapper = api.getObjectMapper().copy();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            logger.debug("Coveralls Job: " + mapper.writeValueAsString(job));
+        }
 
         CoverallsResponse response = api.createJob(job);
         if (response.isError()) {
@@ -100,6 +110,9 @@ public class CoverallsUpload extends DefaultTask {
             _git.setBranch(repo.getBranch());
 
             ObjectId headId = repo.resolve(Constants.HEAD);
+            if (headId == null) {
+                return null;
+            }
             RevCommit headCommit = new RevWalk(repo).parseCommit(headId);
 
             Git.Head head = new Git.Head();
@@ -139,10 +152,11 @@ public class CoverallsUpload extends DefaultTask {
 
         for (CodeCoverage.SourceFile.Line line : sourceFile.getLines()) {
             if (line.getCoveredBranches() + line.getMissedBranches() > 0) {
-                branches.add(new Integer[]{line.getNumber(), 0, branches.size(), line.getCoveredBranches()});
-            } else {
-                coverage[line.getNumber() - 1] = line.getCoveredInstructions();
+                for (int i = 1; i <= line.getCoveredBranches() + line.getMissedBranches(); i++) {
+                    branches.add(new Integer[]{line.getNumber(), 1, i, i <= line.getCoveredBranches() ? 1 : 0});
+                }
             }
+            coverage[line.getNumber() - 1] = line.getCoveredInstructions();
         }
 
         Path relativePath = getProject().getRootDir().toPath().relativize(file.toPath());

@@ -15,21 +15,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class CoverallsApi {
+    private final ObjectMapper objectMapper;
     private Path tempDir;
+
+    public CoverallsApi() {
+        this.objectMapper =
+                new ObjectMapper().findAndRegisterModules().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
+    }
 
     public void setTempDir(Path tempDir) {
         this.tempDir = tempDir;
     }
 
     public CoverallsResponse createJob(Job job) throws Exception {
-        Files.createDirectories(tempDir);
-
         Path jsonFile = Files.createTempFile(tempDir, "coveralls", "json");
 
-        ObjectMapper mapper = new ObjectMapper()
-                .findAndRegisterModules()
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.writeValue(jsonFile.toFile(), job);
+        objectMapper.writeValue(jsonFile.toFile(), job);
 
         HttpEntity entity = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
                 .addBinaryBody("json_file", jsonFile.toFile(), ContentType.APPLICATION_JSON, "coveralls.json").build();
@@ -39,13 +44,14 @@ public class CoverallsApi {
 
         HttpResponse response = createClient().execute(post);
 
-        CoverallsResponse cResponse = mapper.readValue(response.getEntity().getContent(), CoverallsResponse.class);
+        CoverallsResponse cResponse =
+                objectMapper.readValue(response.getEntity().getContent(), CoverallsResponse.class);
         cResponse.setCode(response.getStatusLine().getStatusCode());
 
         return cResponse;
     }
 
-    public HttpClient createClient() throws Exception {
+    private HttpClient createClient() throws Exception {
         HttpClientBuilder clientBuilder = HttpClientBuilder.create();
         return clientBuilder.build();
     }

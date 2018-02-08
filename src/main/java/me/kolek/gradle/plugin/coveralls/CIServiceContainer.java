@@ -4,6 +4,7 @@ import groovy.lang.Closure;
 import me.kolek.gradle.plugin.coveralls.service.CIService;
 import me.kolek.gradle.plugin.coveralls.service.CodeshipService;
 import me.kolek.gradle.plugin.coveralls.service.DefaultService;
+import me.kolek.gradle.plugin.coveralls.service.TravisService;
 import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
@@ -13,6 +14,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class CIServiceContainer {
     private final ObjectFactory objectFactory;
@@ -47,12 +49,6 @@ public class CIServiceContainer {
         return createService(serviceType);
     }
 
-    public <S extends CIService> S service(Class<S> serviceType, Closure configureClosure) {
-        S service = createService(serviceType);
-        ConfigureUtil.configure(configureClosure, service);
-        return service;
-    }
-
     public <S extends CIService> S service(Class<S> serviceType, Action<? super S> action) {
         S service = createService(serviceType);
         action.execute(service);
@@ -63,20 +59,20 @@ public class CIServiceContainer {
         return service(CodeshipService.class);
     }
 
-    public CodeshipService codeship(Closure configureClosure) {
-        return service(CodeshipService.class, configureClosure);
-    }
-
     public CodeshipService codeship(Action<? super CodeshipService> action) {
         return service(CodeshipService.class, action);
     }
 
-    public DefaultService custom() {
-        return service(DefaultService.class);
+    public TravisService travis() {
+        return service(TravisService.class);
     }
 
-    public DefaultService custom(Closure configureClosure) {
-        return service(DefaultService.class, configureClosure);
+    public TravisService travis(Action<? super TravisService> action) {
+        return service(TravisService.class, action);
+    }
+
+    public DefaultService custom() {
+        return service(DefaultService.class);
     }
 
     public DefaultService custom(Action<? super DefaultService> action) {

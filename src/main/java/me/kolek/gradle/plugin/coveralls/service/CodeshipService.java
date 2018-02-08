@@ -1,6 +1,7 @@
 package me.kolek.gradle.plugin.coveralls.service;
 
 public class CodeshipService implements CIService {
+    private static final String CODESHIP = "CODESHIP";
     private static final String CI = "CI";
     private static final String CI_BRANCH = "CI_BRANCH";
     private static final String CI_BUILD_NUMBER = "CI_BUILD_NUMBER";
@@ -21,7 +22,7 @@ public class CodeshipService implements CIService {
 
     @Override
     public boolean isAvailable() {
-        return "true".equalsIgnoreCase(System.getenv(CI));
+        return "true".equalsIgnoreCase(System.getenv(CODESHIP));
     }
 
     @Override
