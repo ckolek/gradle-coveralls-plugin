@@ -22,8 +22,6 @@ public class CoverallsApi {
     }
 
     public CoverallsResponse createJob(Job job) throws Exception {
-        Files.createDirectories(tempDir);
-
         Path jsonFile = Files.createTempFile(tempDir, "coveralls", "json");
 
         ObjectMapper mapper = new ObjectMapper()

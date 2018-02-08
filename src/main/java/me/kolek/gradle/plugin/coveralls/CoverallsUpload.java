@@ -1,5 +1,7 @@
 package me.kolek.gradle.plugin.coveralls;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import groovy.lang.Tuple2;
 import me.kolek.gradle.plugin.coveralls.api.*;
 import me.kolek.gradle.plugin.coveralls.coverage.CodeCoverage;
@@ -14,6 +16,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
@@ -63,6 +66,13 @@ public class CoverallsUpload extends DefaultTask {
         }
 
         Job job = createJob(repoToken, service.get(), coverage.get());
+
+        Logger logger = getLogger();
+        if (logger.isDebugEnabled()) {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            logger.debug("Coveralls Job: " + mapper.writeValueAsString(job));
+        }
 
         CoverallsApi api = new CoverallsApi();
         api.setTempDir(getTemporaryDir().toPath());
