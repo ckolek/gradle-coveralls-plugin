@@ -1,7 +1,19 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath group: 'me.kolek.gradle', name: 'gradle-coveralls-plugin', version: '1.0.0'
+    }
+}
+
 group 'me.kolek.gradle'
 version '1.0.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'me.kolek.coveralls'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
@@ -19,6 +31,24 @@ dependencies {
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
     compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.3'
     compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '4.9.0.201710071750-r'
+}
+
+jacoco {
+    toolVersion = "0.7.9"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+
+coveralls {
+    repoToken System.env.COVERALLS_REPO_TOKEN
+    services {
+        travis()
+    }
 }
 
 task sourcesJar(type: Jar) {
