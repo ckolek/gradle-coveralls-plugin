@@ -59,7 +59,7 @@ public class CoverallsUpload extends DefaultTask {
 
         Optional<CIService> service = services.stream().filter(CIService::isAvailable).findFirst();
         if (!service.isPresent()) {
-            return;
+            throw new IllegalStateException("no CI service available for CoverallsUpload task");
         }
 
         Optional<CodeCoverage> coverage = coverageProvider.getCodeCoverage(getProject());
@@ -95,6 +95,11 @@ public class CoverallsUpload extends DefaultTask {
         if (response.isError()) {
             throw new Exception("Upload to Coveralls.io failed: " + response.getMessage());
         }
+
+        int files = coverage.get().getSourceFiles().size();
+        long lines = coverage.get().getSourceFiles().stream().mapToLong(sf -> sf.getLines().size()).sum();
+
+        logger.lifecycle("Upload to Coveralls.io complete (%d lines in %d source files reported)", lines, files);
     }
 
     private Job createJob(String repoToken, CIService service, CodeCoverage coverage) throws Exception {
