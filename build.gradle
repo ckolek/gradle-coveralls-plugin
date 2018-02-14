@@ -71,6 +71,7 @@ ext."signing.secretKeyRingFile" = "$rootProject.projectDir/cd/codesigning.gpg"
 
 signing {
     sign configurations.archives
+    required = System.env.containsKey 'CI'
 }
 
 uploadArchives {
