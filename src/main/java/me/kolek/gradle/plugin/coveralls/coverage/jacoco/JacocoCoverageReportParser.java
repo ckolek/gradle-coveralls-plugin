@@ -1,7 +1,7 @@
 package me.kolek.gradle.plugin.coveralls.coverage.jacoco;
 
 import me.kolek.gradle.plugin.coveralls.coverage.CodeCoverage;
-import org.gradle.internal.impldep.com.google.common.base.Strings;
+import org.gradle.api.Project;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -16,11 +16,13 @@ import java.io.StringReader;
 import java.time.Instant;
 
 public class JacocoCoverageReportParser {
+    private final Project project;
     private final SAXParser parser;
 
     private final CodeCoverage result;
 
-    public JacocoCoverageReportParser() throws ParserConfigurationException, SAXException {
+    public JacocoCoverageReportParser(Project project) throws ParserConfigurationException, SAXException {
+        this.project = project;
         SAXParserFactory parserFactory = SAXParserFactory.newInstance();
         parserFactory.setValidating(false);
 
@@ -67,7 +69,7 @@ public class JacocoCoverageReportParser {
                     String fileName = attributes.getValue(uri, "name");
                     String path = (currentPackage != null && !currentPackage.isEmpty()) ?
                             currentPackage + "/" + fileName : fileName;
-                    currentSourceFile = result.addSourceFile(path);
+                    currentSourceFile = result.addSourceFile(project, path);
                     break;
                 case "line":
                     int nr = Integer.parseInt(attributes.getValue(uri, "nr"));

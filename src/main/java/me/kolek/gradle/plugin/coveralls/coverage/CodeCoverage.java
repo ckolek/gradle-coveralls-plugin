@@ -1,7 +1,11 @@
 package me.kolek.gradle.plugin.coveralls.coverage;
 
+import org.gradle.api.Project;
+import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.SourceSet;
+
+import java.io.File;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.*;
 
 public class CodeCoverage {
@@ -12,8 +16,8 @@ public class CodeCoverage {
         this.sourceFiles = new TreeMap<>();
     }
 
-    public SourceFile addSourceFile(String path) {
-        return sourceFiles.computeIfAbsent(path, SourceFile::new);
+    public SourceFile addSourceFile(Project project, String path) {
+        return sourceFiles.computeIfAbsent(path, path1 -> new SourceFile(project, path1));
     }
 
     public void addSourceFile(SourceFile sourceFile) {
@@ -33,10 +37,12 @@ public class CodeCoverage {
     }
 
     public static class SourceFile {
+        private final Project project;
         private final String path;
         private final List<Line> lines;
 
-        public SourceFile(String path) {
+        public SourceFile(Project project, String path) {
+            this.project = project;
             this.path = path;
             this.lines = new ArrayList<>();
         }
@@ -52,6 +58,19 @@ public class CodeCoverage {
 
         public List<Line> getLines() {
             return lines;
+        }
+
+        public Optional<File> resolveFile() {
+            JavaPluginConvention java = project.getConvention().getPlugin(JavaPluginConvention.class);
+            for (SourceSet sourceSet : java.getSourceSets()) {
+                for (File sourceDir : sourceSet.getAllSource().getSourceDirectories()) {
+                    File _sourceFile = new File(sourceDir, path);
+                    if (_sourceFile.exists()) {
+                        return Optional.of(_sourceFile);
+                    }
+                }
+            }
+            return Optional.empty();
         }
 
         public static class Line {

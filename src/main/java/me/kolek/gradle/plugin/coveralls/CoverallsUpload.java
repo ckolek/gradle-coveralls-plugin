@@ -18,10 +18,7 @@ import org.eclipse.jgit.transport.RemoteConfig;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
-import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.TaskExecutionException;
 import org.gradle.internal.hash.HashCode;
 
 import java.io.*;
@@ -158,7 +155,7 @@ public class CoverallsUpload extends DefaultTask {
 
     private SourceFile createSourceFile(CodeCoverage.SourceFile sourceFile) throws IOException,
             NoSuchAlgorithmException {
-        Optional<File> optFile = findFile(sourceFile);
+        Optional<File> optFile = sourceFile.resolveFile();
         if (!optFile.isPresent()) {
             throw new FileNotFoundException(sourceFile.getPath());
         }
@@ -191,19 +188,6 @@ public class CoverallsUpload extends DefaultTask {
         _sourceFile.setBranches(branches.stream().flatMap(Arrays::stream).toArray(Integer[]::new));
 
         return _sourceFile;
-    }
-
-    private Optional<File> findFile(CodeCoverage.SourceFile sourceFile) {
-        JavaPluginConvention java = getProject().getConvention().getPlugin(JavaPluginConvention.class);
-        for (SourceSet sourceSet : java.getSourceSets()) {
-            for (File sourceDir : sourceSet.getAllSource().getSourceDirectories()) {
-                File _sourceFile = new File(sourceDir, sourceFile.getPath());
-                if (_sourceFile.exists()) {
-                    return Optional.of(_sourceFile);
-                }
-            }
-        }
-        return Optional.empty();
     }
 
     private Tuple2<Integer, String> readFile(File file) throws NoSuchAlgorithmException, IOException {

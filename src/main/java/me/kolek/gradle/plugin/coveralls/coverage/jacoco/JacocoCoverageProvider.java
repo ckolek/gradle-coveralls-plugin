@@ -34,7 +34,7 @@ public class JacocoCoverageProvider implements CodeCoverageProvider {
             return Optional.empty();
         }
 
-        JacocoCoverageReportParser parser = new JacocoCoverageReportParser();
+        JacocoCoverageReportParser parser = new JacocoCoverageReportParser(project);
         for (File reportFile : reportFiles) {
             parser.parse(reportFile);
         }
