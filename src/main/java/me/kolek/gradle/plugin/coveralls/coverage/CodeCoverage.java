@@ -16,6 +16,10 @@ public class CodeCoverage {
         return sourceFiles.computeIfAbsent(path, SourceFile::new);
     }
 
+    public void addSourceFile(SourceFile sourceFile) {
+        sourceFiles.put(sourceFile.getPath(), sourceFile);
+    }
+
     public Collection<SourceFile> getSourceFiles() {
         return sourceFiles.values();
     }

@@ -2,6 +2,7 @@ package me.kolek.gradle.plugin.coveralls.coverage.jacoco;
 
 import me.kolek.gradle.plugin.coveralls.coverage.CodeCoverage;
 import me.kolek.gradle.plugin.coveralls.coverage.CodeCoverageProvider;
+import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.reporting.SingleFileReport;
 import org.gradle.testing.jacoco.tasks.JacocoReport;
@@ -12,26 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class JacocoCoverageProvider implements CodeCoverageProvider {
-    private File reportsDir;
-
-    public File getReportsDir() {
-        return reportsDir;
-    }
-
-    public void setReportsDir(File reportsDir) {
-        this.reportsDir = reportsDir;
-    }
-
     @Override
-    public Optional<CodeCoverage> getCodeCoverage(Task task) throws Exception {
-        if (reportsDir == null) {
-            throw new IllegalStateException("reports dir has not been configured for JaCoCo coverage provider");
-        } else if (!reportsDir.exists()) {
-            return Optional.empty();
-        }
-
+    public Optional<CodeCoverage> getCodeCoverage(Project project) throws Exception {
         List<File> reportFiles = new ArrayList<>();
-        for (Task _task : task.getProject().getTasks()) {
+        for (Task _task : project.getTasks()) {
             if (!_task.getDidWork()) {
                 continue;
             } else if (!(_task instanceof JacocoReport)) {

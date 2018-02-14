@@ -20,6 +20,7 @@ public class CoverallsPluginExtension {
     private final Property<String> repoToken;
     private final Property<CodeCoverageProvider> coverageProvider;
     private final CIServiceContainer serviceContainer;
+    private final Property<Boolean> includeSubprojects;
 
     @Inject
     public CoverallsPluginExtension(ObjectFactory objectFactory) {
@@ -27,6 +28,7 @@ public class CoverallsPluginExtension {
         this.repoToken = objectFactory.property(String.class);
         this.coverageProvider = objectFactory.property(CodeCoverageProvider.class);
         this.serviceContainer = objectFactory.newInstance(CIServiceContainer.class, objectFactory);
+        this.includeSubprojects = objectFactory.property(Boolean.class);
     }
 
     public String getRepoToken() {
@@ -75,5 +77,13 @@ public class CoverallsPluginExtension {
         C coverageProvider = objectFactory.newInstance(coverageProviderType);
         setCoverageProvider(coverageProvider);
         return coverageProvider;
+    }
+
+    public boolean getIncludeSubprojects() {
+        return includeSubprojects.getOrElse(false);
+    }
+
+    public void setIncludeSubprojects(boolean includeSubprojects) {
+        this.includeSubprojects.set(includeSubprojects);
     }
 }

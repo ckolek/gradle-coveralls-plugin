@@ -32,8 +32,6 @@ public class CoverallsPlugin implements Plugin<Project> {
     }
 
     private JacocoCoverageProvider createJacocoCoverageProvider(Project project, JacocoPluginExtension jacocoExtension) {
-        JacocoCoverageProvider coverageProvider = project.getObjects().newInstance(JacocoCoverageProvider.class);
-        coverageProvider.setReportsDir(jacocoExtension.getReportsDir());
-        return coverageProvider;
+        return project.getObjects().newInstance(JacocoCoverageProvider.class);
     }
 }

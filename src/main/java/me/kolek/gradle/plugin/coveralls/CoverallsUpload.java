@@ -16,6 +16,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BinaryOperator;
 
 public class CoverallsUpload extends DefaultTask {
     @TaskAction
@@ -60,7 +62,19 @@ public class CoverallsUpload extends DefaultTask {
             return;
         }
 
-        Optional<CodeCoverage> coverage = coverageProvider.getCodeCoverage(this);
+        Optional<CodeCoverage> coverage = coverageProvider.getCodeCoverage(getProject());
+        if (extension.getIncludeSubprojects()) {
+            for (Project subproject : getProject().getSubprojects()) {
+                coverage = combine(coverage, coverageProvider.getCodeCoverage(subproject), (c1, c2) -> {
+                    CodeCoverage c = new CodeCoverage();
+                    c.setRunAt(c1.getRunAt().isBefore(c2.getRunAt()) ? c1.getRunAt() : c2.getRunAt());
+                    c1.getSourceFiles().forEach(c::addSourceFile);
+                    c2.getSourceFiles().forEach(c::addSourceFile);
+                    return c;
+                });
+            }
+        }
+
         if (!coverage.isPresent()) {
             return;
         }
@@ -200,5 +214,16 @@ public class CoverallsUpload extends DefaultTask {
         }
 
         return new Tuple2<>(lines, HashCode.fromBytes(digest.digest()).toString());
+    }
+
+    private static <T> Optional<T> combine(Optional<T> optional1, Optional<T> optional2,
+            BinaryOperator<T> combiner) {
+        if (!optional1.isPresent()) {
+            return optional2;
+        } else if (!optional2.isPresent()) {
+            return optional1;
+        } else {
+            return Optional.ofNullable(combiner.apply(optional1.get(), optional2.get()));
+        }
     }
 }
