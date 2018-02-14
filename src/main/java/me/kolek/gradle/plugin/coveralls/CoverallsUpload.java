@@ -37,6 +37,8 @@ import java.util.function.BinaryOperator;
 public class CoverallsUpload extends DefaultTask {
     @TaskAction
     public void uploadCodeCoverage() throws Exception {
+        Logger logger = getLogger();
+
         CoverallsPluginExtension extension = getProject().getExtensions().getByType(CoverallsPluginExtension.class);
 
         String repoToken = extension.getRepoToken();
@@ -62,7 +64,14 @@ public class CoverallsUpload extends DefaultTask {
         Optional<CodeCoverage> coverage = coverageProvider.getCodeCoverage(getProject());
         if (extension.getIncludeSubprojects()) {
             for (Project subproject : getProject().getSubprojects()) {
-                coverage = combine(coverage, coverageProvider.getCodeCoverage(subproject), (c1, c2) -> {
+                Optional<CodeCoverage> subprojectCoverage = coverageProvider.getCodeCoverage(subproject);
+                subprojectCoverage.ifPresent(sc -> {
+                    logger.debug("Code coverage collected from project {}", subproject.getName());
+                    sc.getSourceFiles().forEach(
+                            sf -> logger.debug("{} lines covered in file {}", sf.getLines().size(), sf.getPath()));
+                });
+
+                coverage = combine(coverage, subprojectCoverage, (c1, c2) -> {
                     CodeCoverage c = new CodeCoverage();
                     c.setRunAt(c1.getRunAt().isBefore(c2.getRunAt()) ? c1.getRunAt() : c2.getRunAt());
                     c1.getSourceFiles().forEach(c::addSourceFile);
@@ -81,7 +90,6 @@ public class CoverallsUpload extends DefaultTask {
         CoverallsApi api = new CoverallsApi();
         api.setTempDir(getTemporaryDir().toPath());
 
-        Logger logger = getLogger();
         if (logger.isDebugEnabled()) {
             ObjectMapper mapper = api.getObjectMapper().copy();
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -96,7 +104,7 @@ public class CoverallsUpload extends DefaultTask {
         int files = coverage.get().getSourceFiles().size();
         long lines = coverage.get().getSourceFiles().stream().mapToLong(sf -> sf.getLines().size()).sum();
 
-        logger.lifecycle("Upload to Coveralls.io complete (%d lines in %d source files reported)", lines, files);
+        logger.lifecycle("Upload to Coveralls.io complete ({} lines in {} source files reported)", lines, files);
     }
 
     private Job createJob(String repoToken, CIService service, CodeCoverage coverage) throws Exception {
