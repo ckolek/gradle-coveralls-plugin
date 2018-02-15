@@ -7,6 +7,7 @@ import org.gradle.api.tasks.SourceSet;
 import java.io.File;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class CodeCoverage {
     private Instant runAt;
@@ -17,11 +18,12 @@ public class CodeCoverage {
     }
 
     public SourceFile addSourceFile(Project project, String path) {
-        return sourceFiles.computeIfAbsent(path, path1 -> new SourceFile(project, path1));
+        return sourceFiles.computeIfAbsent(createKey(project, path), key -> new SourceFile(project, path));
     }
 
-    public void addSourceFile(SourceFile sourceFile) {
-        sourceFiles.put(sourceFile.getPath(), sourceFile);
+    private SourceFile addSourceFile(SourceFile sourceFile) {
+        SourceFile existing = sourceFiles.putIfAbsent(sourceFile.getKey(), sourceFile);
+        return (existing != null) ? existing : sourceFile;
     }
 
     public Collection<SourceFile> getSourceFiles() {
@@ -36,15 +38,44 @@ public class CodeCoverage {
         this.runAt = runAt;
     }
 
+    private static String createKey(Project project, String path) {
+        return project.getName() + ":" + path;
+    }
+
+    public static CodeCoverage combine(CodeCoverage... coverages) {
+        return combine(Arrays.stream(coverages));
+    }
+
+    public static CodeCoverage combine(Stream<CodeCoverage> coverages) {
+        CodeCoverage combination = new CodeCoverage();
+        NavigableSet<Instant> runAts = new TreeSet<>();
+        coverages.forEach(coverage -> {
+            runAts.add(coverage.getRunAt());
+            coverage.getSourceFiles().forEach(combination::addSourceFile);
+        });
+        if (!runAts.isEmpty()) {
+            combination.setRunAt(runAts.first());
+        }
+        return combination;
+    }
+
     public static class SourceFile {
         private final Project project;
         private final String path;
         private final List<Line> lines;
 
-        public SourceFile(Project project, String path) {
+        private SourceFile(Project project, String path) {
             this.project = project;
             this.path = path;
             this.lines = new ArrayList<>();
+        }
+
+        private String getKey() {
+            return createKey(project, path);
+        }
+
+        public Project getProject() {
+            return project;
         }
 
         public String getPath() {
@@ -61,12 +92,14 @@ public class CodeCoverage {
         }
 
         public Optional<File> resolveFile() {
-            JavaPluginConvention java = project.getConvention().getPlugin(JavaPluginConvention.class);
-            for (SourceSet sourceSet : java.getSourceSets()) {
-                for (File sourceDir : sourceSet.getAllSource().getSourceDirectories()) {
-                    File _sourceFile = new File(sourceDir, path);
-                    if (_sourceFile.exists()) {
-                        return Optional.of(_sourceFile);
+            JavaPluginConvention java = project.getConvention().findPlugin(JavaPluginConvention.class);
+            if (java != null) {
+                for (SourceSet sourceSet : java.getSourceSets()) {
+                    for (File sourceDir : sourceSet.getAllSource().getSourceDirectories()) {
+                        File _sourceFile = new File(sourceDir, path);
+                        if (_sourceFile.exists()) {
+                            return Optional.of(_sourceFile);
+                        }
                     }
                 }
             }

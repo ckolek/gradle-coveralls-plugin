@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BinaryOperator;
 
 public class CoverallsUpload extends DefaultTask {
     @TaskAction
@@ -63,22 +62,20 @@ public class CoverallsUpload extends DefaultTask {
 
         Optional<CodeCoverage> coverage = coverageProvider.getCodeCoverage(getProject());
         if (extension.getIncludeSubprojects()) {
+            List<CodeCoverage> coverages = new ArrayList<>(1 + getProject().getSubprojects().size());
+            coverage.ifPresent(coverages::add);
+
             for (Project subproject : getProject().getSubprojects()) {
                 Optional<CodeCoverage> subprojectCoverage = coverageProvider.getCodeCoverage(subproject);
                 subprojectCoverage.ifPresent(sc -> {
                     logger.debug("Code coverage collected from project {}", subproject.getName());
                     sc.getSourceFiles().forEach(
                             sf -> logger.debug("{} lines covered in file {}", sf.getLines().size(), sf.getPath()));
-                });
-
-                coverage = combine(coverage, subprojectCoverage, (c1, c2) -> {
-                    CodeCoverage c = new CodeCoverage();
-                    c.setRunAt(c1.getRunAt().isBefore(c2.getRunAt()) ? c1.getRunAt() : c2.getRunAt());
-                    c1.getSourceFiles().forEach(c::addSourceFile);
-                    c2.getSourceFiles().forEach(c::addSourceFile);
-                    return c;
+                    coverages.add(sc);
                 });
             }
+
+            coverage = coverages.isEmpty() ? Optional.empty() : Optional.of(CodeCoverage.combine(coverages.stream()));
         }
 
         if (!coverage.isPresent()) {
@@ -211,16 +208,5 @@ public class CoverallsUpload extends DefaultTask {
         }
 
         return new Tuple2<>(lines, HashCode.fromBytes(digest.digest()).toString());
-    }
-
-    private static <T> Optional<T> combine(Optional<T> optional1, Optional<T> optional2,
-            BinaryOperator<T> combiner) {
-        if (!optional1.isPresent()) {
-            return optional2;
-        } else if (!optional2.isPresent()) {
-            return optional1;
-        } else {
-            return Optional.ofNullable(combiner.apply(optional1.get(), optional2.get()));
-        }
     }
 }
