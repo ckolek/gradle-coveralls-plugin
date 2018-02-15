@@ -1,6 +1,8 @@
 package me.kolek.gradle.plugin.coveralls.service;
 
-public class TravisService implements CIService {
+import java.util.Map;
+
+public class TravisService extends EnvironmentService implements CIService {
     private static final String TRAVIS = "TRAVIS";
     private static final String TRAVIS_BRANCH = "TRAVIS_BRANCH";
     private static final String TRAVIS_BUILD_DIR = "TRAVIS_BUILD_DIR";
@@ -21,6 +23,14 @@ public class TravisService implements CIService {
 
     private boolean isPro;
 
+    public TravisService() {
+        super(System.getenv());
+    }
+
+    TravisService(Map<String, String> environment) {
+        super(environment);
+    }
+
     public boolean isPro() {
         return isPro;
     }
@@ -36,7 +46,7 @@ public class TravisService implements CIService {
 
     @Override
     public boolean isAvailable() {
-        return "true".equalsIgnoreCase(System.getenv(TRAVIS));
+        return check(TRAVIS, "true");
     }
 
     @Override
@@ -46,16 +56,16 @@ public class TravisService implements CIService {
 
     @Override
     public String getBuildNumber() {
-        return System.getenv(TRAVIS_BUILD_NUMBER);
+        return get(TRAVIS_BUILD_NUMBER);
     }
 
     @Override
     public String getJobId() {
-        return System.getenv(TRAVIS_JOB_ID);
+        return get(TRAVIS_JOB_ID);
     }
 
     @Override
     public String getPullRequest() {
-        return System.getenv(TRAVIS_PULL_REQUEST);
+        return get(TRAVIS_PULL_REQUEST);
     }
 }

@@ -1,6 +1,8 @@
 package me.kolek.gradle.plugin.coveralls.service;
 
-public class CodeshipService implements CIService {
+import java.util.Map;
+
+public class CodeshipService extends EnvironmentService implements CIService {
     private static final String CODESHIP = "CODESHIP";
     private static final String CI = "CI";
     private static final String CI_BRANCH = "CI_BRANCH";
@@ -15,6 +17,14 @@ public class CodeshipService implements CIService {
     private static final String CI_PULL_REQUEST = "CI_PULL_REQUEST";
     private static final String CI_REPO_NAME = "CI_REPO_NAME";
 
+    public CodeshipService() {
+        super(System.getenv());
+    }
+
+    CodeshipService(Map<String, String> environment) {
+        super(environment);
+    }
+
     @Override
     public boolean isSupported() {
         return true;
@@ -22,27 +32,27 @@ public class CodeshipService implements CIService {
 
     @Override
     public boolean isAvailable() {
-        return "true".equalsIgnoreCase(System.getenv(CODESHIP));
+        return check(CODESHIP, "true");
     }
 
     @Override
     public String getName() {
-        return System.getenv(CI_NAME);
+        return get(CI_NAME);
     }
 
     @Override
     public String getBuildNumber() {
-        return null;
+        return get(CI_BUILD_NUMBER);
     }
 
     @Override
     public String getJobId() {
-        return System.getenv(CI_BUILD_NUMBER);
+        return null;
     }
 
     @Override
     public String getPullRequest() {
-        String pullRequest = System.getenv(CI_PULL_REQUEST);
+        String pullRequest = get(CI_PULL_REQUEST);
         return "false".equalsIgnoreCase(pullRequest) ? null : pullRequest;
     }
 }
